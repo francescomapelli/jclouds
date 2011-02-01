@@ -79,7 +79,7 @@ public class FilesystemAsyncBlobStoreTest {
     static  {
         System.setProperty(LOGGING_CONFIG_KEY,
                            LOGGING_CONFIG_VALUE);
-                           
+
     }
 
     private BlobStoreContext context = null;
@@ -97,6 +97,11 @@ public class FilesystemAsyncBlobStoreTest {
         blobStore = context.getBlobStore();
 
         resourcesToBeDeleted.add(new File(TestUtils.TARGET_BASE_DIR));
+
+        File resourceDir = new File(TestUtils.SRC_RESOURCE_DIR);
+        File targetDir = new File(TestUtils.TARGET_DIR);
+        FileUtils.copyDirectoryToDirectory(resourceDir, targetDir);
+
     }
 
 
@@ -153,7 +158,7 @@ public class FilesystemAsyncBlobStoreTest {
         // Testing list with no containers
         containersRetrieved = blobStore.list();
         assertTrue(containersRetrieved.isEmpty(), "List operation returns a not empty set of container");
-        
+
         // Testing list with some containers
         String[] containerNames = new String[]{"34343", "aaaa", "bbbbb"};
         containersCreated = new HashSet<String>();
@@ -212,7 +217,7 @@ public class FilesystemAsyncBlobStoreTest {
         checkForContainerContent(CONTAINER_NAME, blobsExpected);
     }
 
-    
+
     public void testList_NotExistingContainer() {
         // Testing list for a not existing container
         try {

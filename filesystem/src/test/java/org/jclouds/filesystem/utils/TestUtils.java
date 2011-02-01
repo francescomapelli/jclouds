@@ -37,13 +37,16 @@ import static org.testng.Assert.*;
  */
 public class TestUtils {
 
-    private static final String TARGET_RESOURCE_DIR = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator;
+    public static final String SRC_RESOURCE_DIR = "." + File.separator + "src" + File.separator + "test" + File.separator + "resources" + File.separator;
+    public static final String TARGET_DIR = "." + File.separator + "target" + File.separator + "test-classes" + File.separator;
+    public static final String TARGET_TEST_CLASSES_DIR = "." + File.separator + "target" + File.separator + "test-classes" + File.separator + "resources" + File.separator;
+
     /** All the files available for the tests */
     private static String[] imageResource = new String[]{
-        TARGET_RESOURCE_DIR + "image1.jpg",
-        TARGET_RESOURCE_DIR + "image2.jpg",
-        TARGET_RESOURCE_DIR + "image3.jpg",
-        TARGET_RESOURCE_DIR + "image4.jpg"
+        TARGET_TEST_CLASSES_DIR + "image1.jpg",
+        TARGET_TEST_CLASSES_DIR + "image2.jpg",
+        TARGET_TEST_CLASSES_DIR + "image3.jpg",
+        TARGET_TEST_CLASSES_DIR + "image4.jpg"
     };
     private static int imageResourceIndex = 0;
 

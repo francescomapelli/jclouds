@@ -46,6 +46,7 @@ import org.jclouds.filesystem.predicates.validators.internal.FilesystemBlobKeyVa
 import org.jclouds.filesystem.predicates.validators.internal.FilesystemContainerNameValidatorImpl;
 import org.jclouds.filesystem.strategy.FilesystemStorageStrategy;
 import org.jclouds.filesystem.strategy.internal.FilesystemStorageStrategyImpl;
+import org.jclouds.filesystem.strategy.internal.OptimizedFilesystemStorageStrategy;
 import org.jclouds.filesystem.util.internal.FileSystemBlobUtilsImpl;
 
 /**
@@ -62,7 +63,7 @@ public class FilesystemBlobStoreContextModule extends AbstractModule {
       install(new BlobStoreObjectModule());
       install(new BlobStoreMapModule());
       bind(ConsistencyModel.class).toInstance(ConsistencyModel.STRICT);
-      bind(FilesystemStorageStrategy.class).to(FilesystemStorageStrategyImpl.class);
+      bind(FilesystemStorageStrategy.class).to(OptimizedFilesystemStorageStrategy.class);
       bind(BlobUtils.class).to(FileSystemBlobUtilsImpl.class);
       bind(FilesystemBlobKeyValidator.class).to(FilesystemBlobKeyValidatorImpl.class);
       bind(FilesystemContainerNameValidator.class).to(FilesystemContainerNameValidatorImpl.class);

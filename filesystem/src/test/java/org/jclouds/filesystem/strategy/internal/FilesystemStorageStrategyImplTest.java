@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import org.apache.commons.io.FileUtils;
 import org.jclouds.blobstore.options.ListContainerOptions;
 import org.jclouds.filesystem.predicates.validators.internal.FilesystemContainerNameValidatorImpl;
 import org.jclouds.filesystem.predicates.validators.internal.FilesystemBlobKeyValidatorImpl;
@@ -75,6 +76,10 @@ public class FilesystemStorageStrategyImplTest {
                 new FilesystemContainerNameValidatorImpl(),
                 new FilesystemBlobKeyValidatorImpl());
         TestUtils.cleanDirectoryContent(TestUtils.TARGET_BASE_DIR);
+
+        File resourceDir = new File(TestUtils.SRC_RESOURCE_DIR);
+        File targetDir = new File(TestUtils.TARGET_DIR);
+        FileUtils.copyDirectoryToDirectory(resourceDir, targetDir);
     }
 
 
