@@ -96,7 +96,7 @@ public interface FilesystemStorageStrategy {
     * @param directory
     *           full path to the directory
     */
-    void createDirectory(String container, String directory);
+    boolean createDirectory(String container, String directory);
 
     /**
     * Deletes a folder or a directory marker depending on the service

@@ -435,7 +435,7 @@ public class FilesystemAsyncBlobStoreTest {
      * Test of removeBlob method, with only one blob with a complex path as key
      */
     public void testRemoveBlob_ComplexBlobKey() throws IOException {
-        final String BLOB_KEY = TestUtils.createRandomBlobKey("aa/bb/cc/dd/", null);
+        final String BLOB_KEY = TestUtils.createRandomBlobKey("aa"+File.separator+"bb"+File.separator+"cc"+File.separator+"dd"+File.separator, null);
         boolean result;
 
         //checks that blob doesn't exists
@@ -459,7 +459,7 @@ public class FilesystemAsyncBlobStoreTest {
         //file removed
         TestUtils.fileExists(TARGET_CONTAINER_NAME + File.separator + BLOB_KEY, false);
         //also the entire directory structure was removed
-        TestUtils.directoryExists(TARGET_CONTAINER_NAME + "/aa", false);
+        TestUtils.directoryExists(TARGET_CONTAINER_NAME + File.separator+"aa", false);
     }
 
 
@@ -469,8 +469,8 @@ public class FilesystemAsyncBlobStoreTest {
      * it is shared with the second blob's key
      */
     public void testRemoveBlob_TwoComplexBlobKeys() throws IOException {
-        final String BLOB_KEY1 = TestUtils.createRandomBlobKey("aa/bb/cc/dd/", null);
-        final String BLOB_KEY2 = TestUtils.createRandomBlobKey("aa/bb/ee/ff/", null);
+        final String BLOB_KEY1 = TestUtils.createRandomBlobKey("aa"+File.separator+"bb"+File.separator+"cc"+File.separator+"dd"+File.separator, null);
+        final String BLOB_KEY2 = TestUtils.createRandomBlobKey("aa"+File.separator+"bb"+File.separator+"ee"+File.separator+"ff"+File.separator, null);
         boolean result;
 
         blobStore.createContainerInLocation(null, CONTAINER_NAME);
@@ -500,15 +500,15 @@ public class FilesystemAsyncBlobStoreTest {
         TestUtils.fileExists(TARGET_CONTAINER_NAME + File.separator + BLOB_KEY2, true);
         //only partial directory structure was removed, because it shares a path
         //with the second blob created
-        TestUtils.directoryExists(TARGET_CONTAINER_NAME + "/aa/bb/cc/dd", false);
-        TestUtils.directoryExists(TARGET_CONTAINER_NAME + "/aa/bb", true);
+        TestUtils.directoryExists(TARGET_CONTAINER_NAME + File.separator+"aa"+File.separator+"bb"+File.separator+"cc"+File.separator+"dd", false);
+        TestUtils.directoryExists(TARGET_CONTAINER_NAME + File.separator+"aa"+File.separator+"bb", true);
         //remove second blob
         blobStore.removeBlob(CONTAINER_NAME, BLOB_KEY2);
         result = blobStore.blobExists(CONTAINER_NAME, BLOB_KEY2);
         assertFalse(result, "Blob still exists");
         TestUtils.fileExists(TARGET_CONTAINER_NAME + File.separator + BLOB_KEY2, false);
         //now all the directory structure is empty
-        TestUtils.directoryExists(TARGET_CONTAINER_NAME + "/aa", false);
+        TestUtils.directoryExists(TARGET_CONTAINER_NAME + File.separator+"aa", false);
     }
 
 
@@ -576,10 +576,10 @@ public class FilesystemAsyncBlobStoreTest {
      */
     public void testPutBlobComplexName1() {
         blobStore.createContainerInLocation(null, CONTAINER_NAME);
-        putBlobAndCheckIt(TestUtils.createRandomBlobKey("picture/putBlob-", ".jpg"));
-        putBlobAndCheckIt(TestUtils.createRandomBlobKey("video/putBlob-", ".jpg"));
+        putBlobAndCheckIt(TestUtils.createRandomBlobKey("picture"+File.separator+"putBlob-", ".jpg"));
+        putBlobAndCheckIt(TestUtils.createRandomBlobKey("video"+File.separator+"putBlob-", ".jpg"));
         putBlobAndCheckIt(TestUtils.createRandomBlobKey("putBlob-", ".jpg"));
-        putBlobAndCheckIt(TestUtils.createRandomBlobKey("video/putBlob-", ".jpg"));
+        putBlobAndCheckIt(TestUtils.createRandomBlobKey("video"+File.separator+"putBlob-", ".jpg"));
     }
 
     /**
@@ -588,8 +588,8 @@ public class FilesystemAsyncBlobStoreTest {
      */
     public void testPutBlobComplexName2() {
         blobStore.createContainerInLocation(null, CONTAINER_NAME);
-        putBlobAndCheckIt(TestUtils.createRandomBlobKey("aa/bb/cc/dd/ee/putBlob-", ".jpg"));
-        putBlobAndCheckIt(TestUtils.createRandomBlobKey("aa/bb/cc/dd/ee/putBlob-", ".jpg"));
+        putBlobAndCheckIt(TestUtils.createRandomBlobKey("aa"+File.separator+"bb"+File.separator+"cc"+File.separator+"dd"+File.separator+"ee"+File.separator+"putBlob-", ".jpg"));
+        putBlobAndCheckIt(TestUtils.createRandomBlobKey("aa"+File.separator+"bb"+File.separator+"cc"+File.separator+"dd"+File.separator+"ee"+File.separator+"putBlob-", ".jpg"));
         putBlobAndCheckIt(TestUtils.createRandomBlobKey("putBlob-", ".jpg"));
     }
 
@@ -617,7 +617,7 @@ public class FilesystemAsyncBlobStoreTest {
         assertTrue(result, "Blob doesn't exist");
 
         //complex path test
-        blobKey = TestUtils.createRandomBlobKey("ss/asdas/", "");
+        blobKey = TestUtils.createRandomBlobKey("ss"+File.separator+"asdas"+File.separator, "");
         result = blobStore.blobExists(CONTAINER_NAME, blobKey);
         assertFalse(result, "Blob exists");
         TestUtils.createBlobAsFile(CONTAINER_NAME, blobKey, TestUtils.getImageForBlobPayload());
@@ -769,11 +769,11 @@ public class FilesystemAsyncBlobStoreTest {
 
     public void testInvalidContainerName() {
         try {
-            blobStore.createContainerInLocation(null, "file/system");
+            blobStore.createContainerInLocation(null, "file"+File.separator+"system");
             fail("Wrong container name not recognized");
         } catch (IllegalArgumentException e) {}
         try {
-            blobStore.containerExists("file/system");
+            blobStore.containerExists("file"+File.separator+"system");
             fail("Wrong container name not recognized");
         } catch (IllegalArgumentException e) {}
     }

@@ -53,7 +53,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy {
 
-    private static final String BACK_SLASH = "\\";
+    private static final String WRONG_SEPARATOR = (File.separator.equals("\\") ? "/" : "\\");
     /** The buffer size used to copy an InputStream to an OutputStream */
     private static final int COPY_BUFFER_SIZE = 1024;
 
@@ -278,8 +278,15 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
     }
 
     @Override
-    public void createDirectory(String container, String directory) {
-        createDirectoryWithResult(container, directory);
+    public boolean createDirectory(String container, String directory) {
+        try {
+            return createDirectoryWithResult(container, directory);
+        }
+        catch (Throwable t)
+        {
+            //if an exception is thrown, it means that the directory is not created
+            return false;
+        }
     }
 
     @Override
@@ -355,9 +362,9 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
      * @return
      */
     private String normalize(String pathToBeNormalized) {
-        if(null != pathToBeNormalized && pathToBeNormalized.contains(BACK_SLASH)) {
-            if(!BACK_SLASH.equals(File.separator)) {
-                return pathToBeNormalized.replaceAll(BACK_SLASH, File.separator);
+        if(null != pathToBeNormalized && pathToBeNormalized.contains(WRONG_SEPARATOR)) {
+            if(!WRONG_SEPARATOR.equals(File.separator)) {
+                return pathToBeNormalized.replace(WRONG_SEPARATOR, File.separator);
             }
         }
         return pathToBeNormalized;

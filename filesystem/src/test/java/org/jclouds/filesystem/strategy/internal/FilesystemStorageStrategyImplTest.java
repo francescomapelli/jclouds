@@ -54,7 +54,7 @@ public class FilesystemStorageStrategyImplTest {
     private static final String TARGET_CONTAINER_NAME   = TestUtils.TARGET_BASE_DIR + CONTAINER_NAME;
 
     private static final String LOGGING_CONFIG_KEY = "java.util.logging.config.file";
-    private static final String LOGGING_CONFIG_VALUE = "src/main/resources/logging.properties";
+    private static final String LOGGING_CONFIG_VALUE = "src"+File.separator+"main"+File.separator+"resources"+File.separator+"logging.properties";
 
     static  {
         System.setProperty(LOGGING_CONFIG_KEY,
@@ -113,8 +113,21 @@ public class FilesystemStorageStrategyImplTest {
 
     public void testCreateDirectory_WrongDirectoryName() {
         try {
-            storageStrategy.createDirectory(CONTAINER_NAME, "$%&!'`\\");
-            fail("No exception throwed");
+            boolean created = storageStrategy.createDirectory(CONTAINER_NAME, "$%&?!'`/");
+            assertFalse(created, "No exception throwed");
+        } catch(Exception e) {
+        }
+    }
+
+    public void testCreateDirectory_WrongFileSeparator() {
+        try {
+            boolean created;
+            if (File.separator.equals("/")) {
+                created = storageStrategy.createDirectory(CONTAINER_NAME, "aa\\bb\\cc");
+            } else {
+                created = storageStrategy.createDirectory(CONTAINER_NAME, "aa/bb/cc");
+            }
+            assertTrue(created, "Directory not created");
         } catch(Exception e) {
         }
     }
@@ -145,21 +158,21 @@ public class FilesystemStorageStrategyImplTest {
         TestUtils.createBlobsInContainer(
                 CONTAINER_NAME,
                 new String[]{
-                    TestUtils.createRandomBlobKey("lev1/lev2/lev3/", ".txt"),
-                    TestUtils.createRandomBlobKey("lev1/lev2/lev4/", ".jpg")
+                    TestUtils.createRandomBlobKey("lev1"+File.separator+"lev2"+File.separator+"lev3"+File.separator, ".txt"),
+                    TestUtils.createRandomBlobKey("lev1"+File.separator+"lev2"+File.separator+"lev4"+File.separator, ".jpg")
                 }
         );
 
         //delete directory in different ways
-        storageStrategy.deleteDirectory(CONTAINER_NAME, "lev1/lev2/lev4");
-        TestUtils.directoryExists(TARGET_CONTAINER_NAME + File.separator + "lev1/lev2/lev4", false);
-        TestUtils.directoryExists(TARGET_CONTAINER_NAME + File.separator + "lev1/lev2", true);
+        storageStrategy.deleteDirectory(CONTAINER_NAME, "lev1"+File.separator+"lev2"+File.separator+"lev4");
+        TestUtils.directoryExists(TARGET_CONTAINER_NAME + File.separator + "lev1"+File.separator+"lev2"+File.separator+"lev4", false);
+        TestUtils.directoryExists(TARGET_CONTAINER_NAME + File.separator + "lev1"+File.separator+"lev2", true);
 
-        storageStrategy.deleteDirectory(CONTAINER_NAME, "lev1/lev2/lev3/");
-        TestUtils.directoryExists(TARGET_CONTAINER_NAME + File.separator + "lev1/lev2/lev3", false);
-        TestUtils.directoryExists(TARGET_CONTAINER_NAME + File.separator + "lev1/lev2", true);
+        storageStrategy.deleteDirectory(CONTAINER_NAME, "lev1"+File.separator+"lev2"+File.separator+"lev3"+File.separator);
+        TestUtils.directoryExists(TARGET_CONTAINER_NAME + File.separator + "lev1"+File.separator+"lev2"+File.separator+"lev3", false);
+        TestUtils.directoryExists(TARGET_CONTAINER_NAME + File.separator + "lev1"+File.separator+"lev2", true);
 
-        storageStrategy.deleteDirectory(CONTAINER_NAME, "/lev1");
+        storageStrategy.deleteDirectory(CONTAINER_NAME, File.separator+"lev1");
         TestUtils.directoryExists(TARGET_CONTAINER_NAME + File.separator + "lev1", false);
         TestUtils.directoryExists(TARGET_CONTAINER_NAME, true);
 
@@ -167,8 +180,8 @@ public class FilesystemStorageStrategyImplTest {
         TestUtils.createBlobsInContainer(
                 CONTAINER_NAME,
                 new String[]{
-                    TestUtils.createRandomBlobKey("lev1/lev2/lev3/", ".txt"),
-                    TestUtils.createRandomBlobKey("lev1/lev2/lev4/", ".jpg")
+                    TestUtils.createRandomBlobKey("lev1"+File.separator+"lev2"+File.separator+"lev3"+File.separator, ".txt"),
+                    TestUtils.createRandomBlobKey("lev1"+File.separator+"lev2"+File.separator+"lev4"+File.separator, ".jpg")
                 }
         );
         storageStrategy.deleteDirectory(CONTAINER_NAME, null);
@@ -414,7 +427,7 @@ public class FilesystemStorageStrategyImplTest {
         assertNotNull(fileForPayload, "Result File object is null");
         assertEquals(fileForPayload.getAbsolutePath(), fullPath + blobKey, "Wrong file path");
 
-        blobKey = TestUtils.createRandomBlobKey("asd/vmad/andsnf/getFileForBlobKey-", ".img");
+        blobKey = TestUtils.createRandomBlobKey("asd"+File.separator+"vmad"+File.separator+"andsnf"+File.separator+"getFileForBlobKey-", ".img");
         fileForPayload = storageStrategy.getFileForBlobKey(CONTAINER_NAME, blobKey);
         assertEquals(fileForPayload.getAbsolutePath(), fullPath + blobKey, "Wrong file path");
     }
@@ -518,14 +531,14 @@ public class FilesystemStorageStrategyImplTest {
 
     public void testInvalidBlobKey() {
         try {
-            storageStrategy.newBlob("/test.jpg");
+            storageStrategy.newBlob(File.separator+"test.jpg");
             fail("Wrong blob key not recognized");
         } catch (IllegalArgumentException e) {}
     }
 
     public void testInvalidContainerName() {
         try {
-            storageStrategy.createContainer("file/system");
+            storageStrategy.createContainer("file"+File.separator+"system");
             fail("Wrong container name not recognized");
         } catch (IllegalArgumentException e) {}
     }
