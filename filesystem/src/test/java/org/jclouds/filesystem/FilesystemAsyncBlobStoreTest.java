@@ -91,6 +91,7 @@ public class FilesystemAsyncBlobStoreTest {
         //create context for filesystem container
         Properties prop = new Properties();
         prop.setProperty(FilesystemConstants.PROPERTY_BASEDIR, TestUtils.TARGET_BASE_DIR);
+        prop.setProperty(FilesystemConstants.PROPERTY_OPTIMIZED, "yes");
         context = (BlobStoreContext) new BlobStoreContextFactory().createContext(
                 PROVIDER, prop);
         //create a container in the default location

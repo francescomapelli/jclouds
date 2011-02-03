@@ -46,7 +46,7 @@ public class OptimizedFilesystemStorageStrategy  extends FilesystemStorageStrate
         FilesystemContainerNameValidator filesystemContainerNameValidator,
         FilesystemBlobKeyValidator filesystemBlobKeyValidator) {
 
-        super(blobFactory, baseDir, filesystemContainerNameValidator, filesystemBlobKeyValidator);
+        super(blobFactory, baseDir, filesystemContainerNameValidator, filesystemBlobKeyValidator,"yes");
     }
 
 

@@ -28,5 +28,10 @@ public class FilesystemConstants {
 
     /** Specify the base directory where provider starts its file operations - must exists */
     public static final String PROPERTY_BASEDIR = "FileSystemAsyncBlobStore-basedir";
+    /** Specify the property name for the choose of optimezed move instead of copy and delete */
+    public static final String PROPERTY_OPTIMIZED = "ToOptimized";
+
+    /** Specify the value that permit to FilesystemStorageStrategy to use optimized copy */
+    public static final String VALUE_OPTIMIZED = "optimized";
 
 }

@@ -74,9 +74,15 @@ public class FilesystemStorageStrategyImplTest {
                 },
                 TestUtils.TARGET_BASE_DIR,
                 new FilesystemContainerNameValidatorImpl(),
-                new FilesystemBlobKeyValidatorImpl());
+                new FilesystemBlobKeyValidatorImpl(),
+                "no");
         TestUtils.cleanDirectoryContent(TestUtils.TARGET_BASE_DIR);
 
+        
+    }
+
+    @BeforeTest
+    protected void setUpTest() throws IOException {
         File resourceDir = new File(TestUtils.SRC_RESOURCE_DIR);
         File targetDir = new File(TestUtils.TARGET_DIR);
         FileUtils.copyDirectoryToDirectory(resourceDir, targetDir);

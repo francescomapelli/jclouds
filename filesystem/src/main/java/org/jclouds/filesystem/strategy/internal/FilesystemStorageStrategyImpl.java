@@ -62,6 +62,7 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
 
     protected final Blob.Factory blobFactory;
     protected final String baseDirectory;
+    protected final String optimized;
     protected final FilesystemContainerNameValidator filesystemContainerNameValidator;
     protected final FilesystemBlobKeyValidator filesystemBlobKeyValidator;
 
@@ -71,9 +72,11 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
             Blob.Factory blobFactory,
             @Named(FilesystemConstants.PROPERTY_BASEDIR) String baseDir,
             FilesystemContainerNameValidator filesystemContainerNameValidator,
-            FilesystemBlobKeyValidator filesystemBlobKeyValidator) {
+            FilesystemBlobKeyValidator filesystemBlobKeyValidator,
+            @Named(FilesystemConstants.PROPERTY_OPTIMIZED) String optimized) {
         this.blobFactory = checkNotNull(blobFactory, "filesystem storage strategy blobfactory");
         this.baseDirectory = checkNotNull(baseDir, "filesystem storage strategy base directory");
+        this.optimized = checkNotNull(optimized, "filesystem storage strategy base directory");
         this.filesystemContainerNameValidator = checkNotNull(filesystemContainerNameValidator, "filesystem container name validator");
         this.filesystemBlobKeyValidator = checkNotNull(filesystemBlobKeyValidator, "filesystem blob key validator");
     }
@@ -192,6 +195,14 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
     }
 
 
+    @Override
+    public void writePayloadOnFile(String container, String blobKey, Payload payload) throws IOException {
+        if (FilesystemConstants.VALUE_OPTIMIZED.equals(optimized)) {
+            optimizedWritePayloadOnFile(container, blobKey, payload);
+        } else {
+            brutalWritePayloadOnFile(container, blobKey, payload);
+        }
+    }
     /**
      * Write a {@link Blob} {@link Payload} into a file
      * @param container
@@ -199,8 +210,7 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
      * @param payload
      * @throws IOException
      */
-    @Override
-    public void writePayloadOnFile(String container, String blobKey, Payload payload) throws IOException {
+    private void brutalWritePayloadOnFile(String container, String blobKey, Payload payload) throws IOException {
         filesystemContainerNameValidator.validate(container);
         filesystemBlobKeyValidator.validate(blobKey);
         File outputFile = null;
@@ -239,6 +249,28 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
                 }
             }
         }
+    }
+
+    private void optimizedWritePayloadOnFile(String container, String blobKey, Payload payload) throws IOException {
+        filesystemContainerNameValidator.validate(container);
+        filesystemBlobKeyValidator.validate(blobKey);
+
+
+        File sourceFile = null;
+        File destFile = null;
+
+        sourceFile = (File) payload.getRawContent();
+
+        destFile = getFileForBlobKey(container, blobKey);
+        File parentDirectory = destFile.getParentFile();
+        if (!parentDirectory.exists()) {
+            if (!parentDirectory.mkdirs()) {
+                throw new IOException("An error occurred creating directory [" + parentDirectory.getName() + "].");
+            }
+        }
+
+        sourceFile.renameTo(destFile);
+
     }
 
 

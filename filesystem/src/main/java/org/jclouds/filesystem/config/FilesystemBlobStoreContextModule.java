@@ -63,7 +63,7 @@ public class FilesystemBlobStoreContextModule extends AbstractModule {
       install(new BlobStoreObjectModule());
       install(new BlobStoreMapModule());
       bind(ConsistencyModel.class).toInstance(ConsistencyModel.STRICT);
-      bind(FilesystemStorageStrategy.class).to(OptimizedFilesystemStorageStrategy.class);
+      bind(FilesystemStorageStrategy.class).to(FilesystemStorageStrategyImpl.class);
       bind(BlobUtils.class).to(FileSystemBlobUtilsImpl.class);
       bind(FilesystemBlobKeyValidator.class).to(FilesystemBlobKeyValidatorImpl.class);
       bind(FilesystemContainerNameValidator.class).to(FilesystemContainerNameValidatorImpl.class);
