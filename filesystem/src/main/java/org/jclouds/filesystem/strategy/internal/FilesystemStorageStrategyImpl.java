@@ -72,7 +72,6 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
             @Named(FilesystemConstants.PROPERTY_BASEDIR) String baseDir,
             FilesystemContainerNameValidator filesystemContainerNameValidator,
             FilesystemBlobKeyValidator filesystemBlobKeyValidator) {
-        
         this.blobFactory = checkNotNull(blobFactory, "filesystem storage strategy blobfactory");
         this.baseDirectory = checkNotNull(baseDir, "filesystem storage strategy base directory");
         this.filesystemContainerNameValidator = checkNotNull(filesystemContainerNameValidator, "filesystem container name validator");
