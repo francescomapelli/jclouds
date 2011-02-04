@@ -117,25 +117,14 @@ public class FilesystemStorageStrategyImplTest {
         storageStrategy.createDirectory(CONTAINER_NAME, null);
     }
 
-    public void testCreateDirectory_WrongDirectoryName() {
-        try {
-            boolean created = storageStrategy.createDirectory(CONTAINER_NAME, "$%&?!'`/");
-            assertFalse(created, "No exception throwed");
-        } catch(Exception e) {
-        }
-    }
-
     public void testCreateDirectory_WrongFileSeparator() {
-        try {
-            boolean created;
-            if (File.separator.equals("/")) {
-                created = storageStrategy.createDirectory(CONTAINER_NAME, "aa\\bb\\cc");
-            } else {
-                created = storageStrategy.createDirectory(CONTAINER_NAME, "aa/bb/cc");
-            }
-            assertTrue(created, "Directory not created");
-        } catch(Exception e) {
+        boolean created;
+        if (File.separator.equals("/")) {
+            created = storageStrategy.createDirectory(CONTAINER_NAME, "aa\\bb\\cc");
+        } else {
+            created = storageStrategy.createDirectory(CONTAINER_NAME, "aa/bb/cc");
         }
+        assertTrue(created, "Directory not created");
     }
 
 

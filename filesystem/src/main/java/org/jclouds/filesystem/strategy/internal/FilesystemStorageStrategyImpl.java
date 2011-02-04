@@ -54,6 +54,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy {
 
     private static final String WRONG_SEPARATOR = (File.separator.equals("\\") ? "/" : "\\");
+    private static final String WRONG_SEPARATOR_REGEXP = (File.separator.equals("\\") ? "/" : "\\\\");
     /** The buffer size used to copy an InputStream to an OutputStream */
     private static final int COPY_BUFFER_SIZE = 1024;
 
@@ -396,7 +397,7 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
     private String normalize(String pathToBeNormalized) {
         if(null != pathToBeNormalized && pathToBeNormalized.contains(WRONG_SEPARATOR)) {
             if(!WRONG_SEPARATOR.equals(File.separator)) {
-                return pathToBeNormalized.replace(WRONG_SEPARATOR, File.separator);
+                return pathToBeNormalized.replace(WRONG_SEPARATOR_REGEXP, File.separator);
             }
         }
         return pathToBeNormalized;
