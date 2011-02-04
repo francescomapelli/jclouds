@@ -53,7 +53,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy {
 
-    private static final String BACK_SLASH = "\\";
+    private static final String WRONG_SEPARATOR = (File.separator.equals("\\") ? "/" : "\\");
+    private static final String WRONG_SEPARATOR_REGEXP = (File.separator.equals("\\") ? "/" : "\\\\");
     /** The buffer size used to copy an InputStream to an OutputStream */
     private static final int COPY_BUFFER_SIZE = 1024;
 
@@ -62,6 +63,7 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
 
     protected final Blob.Factory blobFactory;
     protected final String baseDirectory;
+    protected final String optimized;
     protected final FilesystemContainerNameValidator filesystemContainerNameValidator;
     protected final FilesystemBlobKeyValidator filesystemBlobKeyValidator;
 
@@ -71,9 +73,11 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
             Blob.Factory blobFactory,
             @Named(FilesystemConstants.PROPERTY_BASEDIR) String baseDir,
             FilesystemContainerNameValidator filesystemContainerNameValidator,
-            FilesystemBlobKeyValidator filesystemBlobKeyValidator) {
+            FilesystemBlobKeyValidator filesystemBlobKeyValidator,
+            @Named(FilesystemConstants.PROPERTY_OPTIMIZED) String optimized) {
         this.blobFactory = checkNotNull(blobFactory, "filesystem storage strategy blobfactory");
         this.baseDirectory = checkNotNull(baseDir, "filesystem storage strategy base directory");
+        this.optimized = checkNotNull(optimized, "filesystem storage strategy base directory");
         this.filesystemContainerNameValidator = checkNotNull(filesystemContainerNameValidator, "filesystem container name validator");
         this.filesystemBlobKeyValidator = checkNotNull(filesystemBlobKeyValidator, "filesystem blob key validator");
     }
@@ -105,7 +109,7 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
         deleteDirectory(container, null);
     }
 
-    
+
     /**
      * Empty the directory of its content (files and subdirectories)
      * @param container
@@ -192,6 +196,14 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
     }
 
 
+    @Override
+    public void writePayloadOnFile(String container, String blobKey, Payload payload) throws IOException {
+        if (FilesystemConstants.VALUE_OPTIMIZED.equals(optimized)) {
+            movePayloadOnFile(container, blobKey, payload);
+        } else {
+            copyPayloadOnFile(container, blobKey, payload);
+        }
+    }
     /**
      * Write a {@link Blob} {@link Payload} into a file
      * @param container
@@ -199,8 +211,7 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
      * @param payload
      * @throws IOException
      */
-    @Override
-    public void writePayloadOnFile(String container, String blobKey, Payload payload) throws IOException {
+    private void copyPayloadOnFile(String container, String blobKey, Payload payload) throws IOException {
         filesystemContainerNameValidator.validate(container);
         filesystemBlobKeyValidator.validate(blobKey);
         File outputFile = null;
@@ -241,6 +252,28 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
         }
     }
 
+    private void movePayloadOnFile(String container, String blobKey, Payload payload) throws IOException {
+        filesystemContainerNameValidator.validate(container);
+        filesystemBlobKeyValidator.validate(blobKey);
+
+
+        File sourceFile = null;
+        File destFile = null;
+
+        sourceFile = (File) payload.getRawContent();
+
+        destFile = getFileForBlobKey(container, blobKey);
+        File parentDirectory = destFile.getParentFile();
+        if (!parentDirectory.exists()) {
+            if (!parentDirectory.mkdirs()) {
+                throw new IOException("An error occurred creating directory [" + parentDirectory.getName() + "].");
+            }
+        }
+
+        sourceFile.renameTo(destFile);
+
+    }
+
 
     /**
      * Returns all the blobs key inside a container
@@ -260,7 +293,7 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
         File containerFile = openFolder(container);
         final int containerPathLenght = containerFile.getAbsolutePath().length() + 1;
         Set<String> blobNames = new HashSet<String>() {
-        	
+
 			private static final long serialVersionUID = 3152191346558570795L;
 
 			@Override
@@ -278,8 +311,15 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
     }
 
     @Override
-    public void createDirectory(String container, String directory) {
-        createDirectoryWithResult(container, directory);
+    public boolean createDirectory(String container, String directory) {
+        try {
+            return createDirectoryWithResult(container, directory);
+        }
+        catch (Throwable t)
+        {
+            //if an exception is thrown, it means that the directory is not created
+            return false;
+        }
     }
 
     @Override
@@ -294,7 +334,7 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
         }
     }
 
-    
+
     @Override
     public long countBlobs(String container, ListContainerOptions options) {
         //TODO
@@ -355,9 +395,9 @@ public class FilesystemStorageStrategyImpl implements FilesystemStorageStrategy 
      * @return
      */
     private String normalize(String pathToBeNormalized) {
-        if(null != pathToBeNormalized && pathToBeNormalized.contains(BACK_SLASH)) {
-            if(!BACK_SLASH.equals(File.separator)) {
-                return pathToBeNormalized.replaceAll(BACK_SLASH, File.separator);
+        if(null != pathToBeNormalized && pathToBeNormalized.contains(WRONG_SEPARATOR)) {
+            if(!WRONG_SEPARATOR.equals(File.separator)) {
+                return pathToBeNormalized.replace(WRONG_SEPARATOR_REGEXP, File.separator);
             }
         }
         return pathToBeNormalized;
